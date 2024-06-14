@@ -35,7 +35,7 @@ def chunker(seq, size):
 # os.system('cls') # clear screen windows
 # print("Loading...")
 
-def create_letter_tree(filename: str="english.txt") -> LetterTree:
+def create_letter_tree(filename: str="containerwordsearch/english.txt") -> LetterTree:
     lt: LetterTree = LetterTree()
     with open(filename) as file:
         for line in file:

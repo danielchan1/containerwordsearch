@@ -6,7 +6,7 @@ import main
 import os
 
 app = Flask(__name__, static_folder='out')
-CORS(app, origins=["http://localhost:3000"])
+CORS(app, origins=["http://localhost:3000", "https://containerwordsearch.pythonanywhere.com"])
 
 lt = main.create_letter_tree()
 
