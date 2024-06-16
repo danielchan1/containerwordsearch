@@ -1,5 +1,5 @@
 from lettertree import LetterTree
-# import os
+import os
 
 def extract_prompts(word: str, prompt_length: int=3) -> list[str]:
     substrings: list[str] = []
@@ -32,14 +32,40 @@ def get_desired_solves(solves: list[str], num_solves: int=1) -> list[str]:
 def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
-# os.system('cls') # clear screen windows
-# print("Loading...")
+def check_and_add(word: str, words: list[str], verbose: bool=True) -> int:
+    word = word.strip().upper()
+    word = ''.join([i for i in word if not i.isdigit()])
+    if word in words:
+        print(f"The list already contains {word}.")
+        return 0
+    else:
+        if not verbose or input(f"{word} is not in the list. Add it? Y/N: ").upper() == 'Y':
+            import bisect
+            bisect.insort(words, word)
+            print(f"{word} was added.")
+            return 1
+        else:
+            print(f"{word} not added.")
+            return 0
 
-def create_letter_tree(filename: str="containerwordsearch/english.txt") -> LetterTree:
+def save_all_words(num_new_words: int, all_words: list[str]):
+    if num_new_words > 0:
+        with open('english.txt', 'w') as f:
+            for word in all_words:
+                f.write(f"{word}\n")
+        print(f"{num_new_words} new word{'' if num_new_words == 1 else 's'} added.")
+    else:
+        print("No new words added.")
+os.system('cls') # clear screen windows
+print("Loading...")
+
+all_words: list[str] = []
+def create_letter_tree(filename: str="english.txt") -> LetterTree: #containerwordsearch/
     lt: LetterTree = LetterTree()
     with open(filename) as file:
         for line in file:
             word = line.strip()
+            all_words.append(word)
             if len(word) < lt.prompt_length:
                 lt.insert(word, word) # short_root
             else:
@@ -47,16 +73,28 @@ def create_letter_tree(filename: str="containerwordsearch/english.txt") -> Lette
                     lt.insert(word, prompt)
     return lt
 
-# lt = create_letter_tree()
+lt = create_letter_tree()
 
 # for printing mass solves to file
 """ with open('mostly_everything.txt', 'w') as f:
     print(repr(lt), file=f) """
 
-# os.system('cls') # clear screen windows
+os.system('cls') # clear screen windows
 # print(lt)
+count = 0
+try:
+    """ with open('addwordsbyfile.txt') as file:
+        for line in file:
+            word = line.strip()
+            count += check_and_add(word, all_words, verbose=False) """
 
-# try:
+    while True:
+        word = input(f"Enter a word to check or '-save' ({count} added so far): ")
+        if word == "-save":
+            save_all_words(count, all_words)
+            count = 0
+        else:
+            count += check_and_add(word, all_words)
 #     num_solves = 20 # default max num solves
 #     """ while True:
 #         try:
@@ -77,5 +115,5 @@ def create_letter_tree(filename: str="containerwordsearch/english.txt") -> Lette
 #             for group in chunker(desired_solves, 5):
 #                 print(f"{', '.join(group)}")
 #         print("")
-# except KeyboardInterrupt:
-#     print("\n\nGoodbye.")
+except KeyboardInterrupt:
+    save_all_words(count, all_words)
