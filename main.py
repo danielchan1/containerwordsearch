@@ -56,11 +56,11 @@ def save_all_words(num_new_words: int, all_words: list[str]):
         print(f"{num_new_words} new word{'' if num_new_words == 1 else 's'} added.")
     else:
         print("No new words added.")
-os.system('cls') # clear screen windows
-print("Loading...")
+# os.system('cls') # clear screen windows
+# print("Loading...")
 
 all_words: list[str] = []
-def create_letter_tree(filename: str="english.txt") -> LetterTree: #containerwordsearch/
+def create_letter_tree(filename: str="containerwordsearch/english.txt") -> LetterTree: #
     lt: LetterTree = LetterTree()
     with open(filename) as file:
         for line in file:
@@ -73,7 +73,7 @@ def create_letter_tree(filename: str="english.txt") -> LetterTree: #containerwor
                     lt.insert(word, prompt)
     return lt
 
-lt = create_letter_tree()
+# lt = create_letter_tree()
 
 # for printing mass solves to file
 """ with open('mostly_everything.txt', 'w') as f:
@@ -81,20 +81,20 @@ lt = create_letter_tree()
 
 os.system('cls') # clear screen windows
 # print(lt)
-count = 0
-try:
-    """ with open('addwordsbyfile.txt') as file:
-        for line in file:
-            word = line.strip()
-            count += check_and_add(word, all_words, verbose=False) """
+# count = 0
+# try:
+#     """ with open('addwordsbyfile.txt') as file:
+#         for line in file:
+#             word = line.strip()
+#             count += check_and_add(word, all_words, verbose=False) """
 
-    while True:
-        word = input(f"Enter a word to check or '-save' ({count} added so far): ")
-        if word == "-save":
-            save_all_words(count, all_words)
-            count = 0
-        else:
-            count += check_and_add(word, all_words)
+#     while True:
+#         word = input(f"Enter a word to check or '-save' ({count} added so far): ")
+#         if word == "-save":
+#             save_all_words(count, all_words)
+#             count = 0
+#         else:
+#             count += check_and_add(word, all_words)
 #     num_solves = 20 # default max num solves
 #     """ while True:
 #         try:
@@ -115,5 +115,5 @@ try:
 #             for group in chunker(desired_solves, 5):
 #                 print(f"{', '.join(group)}")
 #         print("")
-except KeyboardInterrupt:
-    save_all_words(count, all_words)
+# except KeyboardInterrupt:
+#     save_all_words(count, all_words)
