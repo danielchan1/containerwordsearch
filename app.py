@@ -30,6 +30,8 @@ def search():
 @app.route('/api/definition', methods=['GET'])
 def get_definition():
     word = request.args.get('word')
+    if not word:
+        return jsonify({"Error": "No word provided"}), 400
     word = str(word).lower()
     try:
         url = f'https://api.dictionaryapi.dev/api/v2/entries/en/{word}'
@@ -39,26 +41,27 @@ def get_definition():
         definition = data[0]['meanings'][0]['definitions'][0]['definition']
         return jsonify({'definition': definition})
     except requests.exceptions.RequestException as e: # word not found in dictionaryapi
-        try:
-            # TODO: first try wordnik api
-            scripai_url = "https://scripai.com/api/getGPT"
-            payload = {'prompt': 
-                       {'title': f"In less than 70 tokens, {word}", 
+        print(f"Dictionary API error for word '{word}': {e}")
+    try:
+        # TODO: first try wordnik api
+        scripai_url = "https://scripai.com/api/getGPT"
+        payload = {'prompt': 
+                        {'title': f"In less than 70 tokens, {word}", 
                         'language': "English", 
                         'tone': "Informative"}, 
-                        'slug': "definition"}
-            headers = {
-                'Content-Type': 'application/json',
-            }
-            response = requests.post(scripai_url, json=payload, headers=headers)
-            response.raise_for_status()
-            data = response.json()
-            definition = data['result']
-            return jsonify({'definition': definition})
-        except requests.exceptions.RequestException as e: # scripai failed for some reason
-            # definition = main.get_definition(word) # get word definition via AI.
-            # return jsonify({'definition': definition})
-            return jsonify({"Error": "No definition found"}), 400
+                    'slug': "definition"}
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        response = requests.post(scripai_url, json=payload, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        definition = data['result']
+        return jsonify({'definition': definition})
+    except requests.exceptions.RequestException as e: # scripai failed for some reason
+        # definition = main.get_definition(word) # get word definition via AI.
+        # return jsonify({'definition': definition})
+        return jsonify({"Error": f"ScripAI failed: {e}"}), 400
     
 # Serve the index.html for the root route
 @app.route('/')
