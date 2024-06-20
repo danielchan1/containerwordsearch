@@ -1,5 +1,4 @@
 from lettertree import LetterTree
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, PreTrainedTokenizer, PreTrainedTokenizerFast
 
 def extract_prompts(word: str, prompt_length: int=3) -> list[str]:
     substrings: list[str] = []
@@ -59,7 +58,7 @@ def save_all_words(num_new_words: int, all_words: list[str]):
     else:
         print("No new words added.")
 
-def setup_ai(model_id: str):
+""" def setup_ai(model_id: str):
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     model = AutoModelForSeq2SeqLM.from_pretrained(model_id)
     return (tokenizer, model)
@@ -76,7 +75,7 @@ def ai_define_word(tokenizer: PreTrainedTokenizer | PreTrainedTokenizerFast, mod
 def get_definition(word: str):
     model_id = "ltg/flan-t5-definition-en-large"
     (tokenizer, model) = setup_ai(model_id) 
-    return ai_define_word(tokenizer, model, word)
+    return ai_define_word(tokenizer, model, word) """
 
 # use "containerwordsearch/english.txt" for prod and "english.txt" for dev
 def create_letter_tree(filename: str="english.txt") -> LetterTree:

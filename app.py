@@ -55,8 +55,9 @@ def get_definition():
             definition = data['result']
             return jsonify({'definition': definition})
         except requests.exceptions.RequestException as e: # scripai failed for some reason
-            definition = main.get_definition(word) # get word definition via AI.
-            return jsonify({'definition': definition})
+            """ definition = main.get_definition(word) # get word definition via AI.
+            return jsonify({'definition': definition}) """
+            return jsonify({"Error": str(e)}), 400
     
 # Serve the index.html for the root route
 @app.route('/')
