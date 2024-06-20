@@ -1,5 +1,5 @@
 from lettertree import LetterTree
-import os
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, PreTrainedTokenizer, PreTrainedTokenizerFast
 
 def extract_prompts(word: str, prompt_length: int=3) -> list[str]:
     substrings: list[str] = []
@@ -36,18 +36,20 @@ def check_and_add(word: str, words: list[str], verbose: bool=True) -> int:
     word = word.strip().upper()
     word = ''.join([i for i in word if not i.isdigit()])
     if word in words:
-        print(f"The list already contains {word}.")
         return 0
     else:
         if not verbose or input(f"{word} is not in the list. Add it? Y/N: ").upper() == 'Y':
             import bisect
             bisect.insort(words, word)
-            print(f"{word} was added.")
+            if verbose:
+                print(f"{word} was added.")
             return 1
         else:
-            print(f"{word} not added.")
+            if verbose:
+                print(f"{word} not added.")
             return 0
 
+# use "containerwordsearch/english.txt" for prod and "english.txt" for dev
 def save_all_words(num_new_words: int, all_words: list[str]):
     if num_new_words > 0:
         with open('english.txt', 'w') as f:
@@ -56,11 +58,28 @@ def save_all_words(num_new_words: int, all_words: list[str]):
         print(f"{num_new_words} new word{'' if num_new_words == 1 else 's'} added.")
     else:
         print("No new words added.")
-# os.system('cls') # clear screen windows
-# print("Loading...")
 
-all_words: list[str] = []
-def create_letter_tree(filename: str="containerwordsearch/english.txt") -> LetterTree: #
+def setup_ai(model_id: str):
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_id)
+    return (tokenizer, model)
+ 
+def ai_define_word(tokenizer: PreTrainedTokenizer | PreTrainedTokenizerFast, model, word: str) -> str:
+    input_text = f"What is the definition of {word}"
+    input_ids = tokenizer(input_text, return_tensors="pt").input_ids
+
+    outputs = model.generate(input_ids, max_new_tokens=70)
+    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+
+# uses AI to define word
+def get_definition(word: str):
+    model_id = "ltg/flan-t5-definition-en-large"
+    (tokenizer, model) = setup_ai(model_id) 
+    return ai_define_word(tokenizer, model, word)
+
+# use "containerwordsearch/english.txt" for prod and "english.txt" for dev
+def create_letter_tree(filename: str="english.txt") -> LetterTree:
     lt: LetterTree = LetterTree()
     with open(filename) as file:
         for line in file:
@@ -73,29 +92,33 @@ def create_letter_tree(filename: str="containerwordsearch/english.txt") -> Lette
                     lt.insert(word, prompt)
     return lt
 
-# lt = create_letter_tree()
+all_words: list[str] = []
+count = 0
+try:
+    # lt = create_letter_tree()
+    # for printing mass solves to file
+    """ with open('mostly_everything.txt', 'w') as f:
+            print(repr(lt), file=f) """
 
-# for printing mass solves to file
-""" with open('mostly_everything.txt', 'w') as f:
-    print(repr(lt), file=f) """
-
-os.system('cls') # clear screen windows
-# print(lt)
-# count = 0
-# try:
-#     """ with open('addwordsbyfile.txt') as file:
-#         for line in file:
-#             word = line.strip()
-#             count += check_and_add(word, all_words, verbose=False) """
-
-#     while True:
-#         word = input(f"Enter a word to check or '-save' ({count} added so far): ")
-#         if word == "-save":
-#             save_all_words(count, all_words)
-#             count = 0
-#         else:
-#             count += check_and_add(word, all_words)
-#     num_solves = 20 # default max num solves
+    # for checking mass words from file
+    """ with open('words_alpha.txt') as file:
+        for line in file:
+            word = line.strip()
+            count += check_and_add(word, all_words, verbose=False)
+    """
+    
+    # for checking words and their ai-generated definitions via console
+    """ while True:
+        word = input(f"Enter a word to check or '-save' ({count} added so far): ")
+        if word == "-save":
+            save_all_words(count, all_words)
+            count = 0
+        else:
+            print(get_definition(word))
+            count += check_and_add(word, all_words) """
+    
+    # for getting solves via console
+    num_solves = 20 # default max num solves
 #     """ while True:
 #         try:
 #             str_solves = input("Number of solves, 0 for all: ").strip()
@@ -115,5 +138,7 @@ os.system('cls') # clear screen windows
 #             for group in chunker(desired_solves, 5):
 #                 print(f"{', '.join(group)}")
 #         print("")
-# except KeyboardInterrupt:
-#     save_all_words(count, all_words)
+
+except KeyboardInterrupt:
+    # save_all_words(count, all_words)
+    pass

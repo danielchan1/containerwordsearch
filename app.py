@@ -4,15 +4,17 @@ from flask import Flask, jsonify, request, send_file, send_from_directory
 from flask_cors import CORS
 import main
 import os
+import requests
 
 app = Flask(__name__, static_folder='out')
-CORS(app, origins=["http://containerwordsearch.pythonanywhere.com"])
+CORS(app, origins=["http://containerwordsearch.pythonanywhere.com", 
+                   "http://127.0.0.1:5000", 
+                   "http://localhost:3000"])
 
-lt = main.create_letter_tree()
+lt = main.create_letter_tree("containerwordsearch/english.txt") # containerwordsearch/
 
 @app.route('/api/search', methods=['POST'])
 def search():
-    # prompt = request.form.get('prompt')
     if not request.is_json:
         return jsonify({'error': 'Only JSON format is supported'}), 415
     prompt = request.json.get('prompt')
@@ -24,7 +26,38 @@ def search():
     else:
         return jsonify({"Error": "No prompt provided"}), 400
     
-
+@app.route('/api/definition', methods=['GET'])
+def get_definition():
+    word = request.args.get('word')
+    word = str(word).lower()
+    try:
+        url = f'https://api.dictionaryapi.dev/api/v2/entries/en/{word}'
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        definition = data[0]['meanings'][0]['definitions'][0]['definition']
+        return jsonify({'definition': definition})
+    except requests.exceptions.RequestException as e: # word not found in dictionaryapi
+        try:
+            # TODO: first try wordnik api
+            scripai_url = "https://scripai.com/api/getGPT"
+            payload = {'prompt': 
+                       {'title': f"In less than 70 tokens, {word}", 
+                        'language': "English", 
+                        'tone': "Informative"}, 
+                        'slug': "definition"}
+            headers = {
+                'Content-Type': 'application/json',
+            }
+            response = requests.post(scripai_url, json=payload, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            definition = data['result']
+            return jsonify({'definition': definition})
+        except requests.exceptions.RequestException as e: # scripai failed for some reason
+            definition = main.get_definition(word) # get word definition via AI.
+            return jsonify({'definition': definition})
+    
 # Serve the index.html for the root route
 @app.route('/')
 def serve_index():
