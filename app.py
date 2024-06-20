@@ -11,7 +11,7 @@ CORS(app, origins=["http://containerwordsearch.pythonanywhere.com",
                    "http://127.0.0.1:5000", 
                    "http://localhost:3000"])
 
-lt = main.create_letter_tree("containerwordsearch/english.txt") # containerwordsearch/
+lt = main.create_letter_tree("containerwordsearch/english.txt") # 
 
 @app.route('/api/search', methods=['POST'])
 def search():
@@ -55,9 +55,9 @@ def get_definition():
             definition = data['result']
             return jsonify({'definition': definition})
         except requests.exceptions.RequestException as e: # scripai failed for some reason
-            """ definition = main.get_definition(word) # get word definition via AI.
-            return jsonify({'definition': definition}) """
-            return jsonify({"Error": str(e)}), 400
+            # definition = main.get_definition(word) # get word definition via AI.
+            # return jsonify({'definition': definition})
+            return jsonify({"Error": "No definition found"}), 400
     
 # Serve the index.html for the root route
 @app.route('/')

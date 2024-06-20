@@ -1,4 +1,5 @@
 from lettertree import LetterTree
+# from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, PreTrainedTokenizer, PreTrainedTokenizerFast
 
 def extract_prompts(word: str, prompt_length: int=3) -> list[str]:
     substrings: list[str] = []
