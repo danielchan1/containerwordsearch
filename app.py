@@ -7,7 +7,8 @@ import os
 import requests
 
 app = Flask(__name__, static_folder='out')
-CORS(app, origins=["http://containerwordsearch.pythonanywhere.com", 
+CORS(app, origins=["https://containerwordsearch.pythonanywhere.com",
+                   "http://containerwordsearch.pythonanywhere.com", 
                    "http://127.0.0.1:5000", 
                    "http://localhost:3000"])
 
