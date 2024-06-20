@@ -57,9 +57,16 @@ def get_definition():
             'Content-Type': 'application/json',
             'x-api-key': SCRAPER_API_KEY
         }
-        scraperapi_url = f'{SCRAPER_BASE_URL}/post/raw?url={scripai_url}&api_key={SCRAPER_API_KEY}'
+        # scraperapi_url = f'{SCRAPER_BASE_URL}/post/raw?url={scripai_url}&api_key={SCRAPER_API_KEY}'
+        scraperapi_url = f'{SCRAPER_BASE_URL}render'
+        response = requests.post(scraperapi_url, json={
+            'url': scripai_url,
+            'headers': headers,
+            'body': payload
+        })
 
-        response = requests.post(scraperapi_url, json=payload, headers=headers)
+
+        # response = requests.post(scraperapi_url, json=payload, headers=headers)
         response.raise_for_status()
         data = response.json()
         definition = data['result']
