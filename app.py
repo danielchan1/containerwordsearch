@@ -44,6 +44,9 @@ def get_definition():
         print(f"Dictionary API error for word '{word}': {e}")
     try:
         # TODO: first try wordnik api
+
+        SCRAPER_API_KEY = 'a9e1d84d8bff1f512969d6f1167d85af'
+        SCRAPER_BASE_URL = 'https://api.scraperapi.com'
         scripai_url = "https://scripai.com/api/getGPT"
         payload = {'prompt': 
                         {'title': f"In less than 70 tokens, {word}", 
@@ -52,8 +55,11 @@ def get_definition():
                     'slug': "definition"}
         headers = {
             'Content-Type': 'application/json',
+            'x-api-key': SCRAPER_API_KEY
         }
-        response = requests.post(scripai_url, json=payload, headers=headers)
+        scraperapi_url = f'{SCRAPER_BASE_URL}/post/raw?url={scripai_url}&api_key={SCRAPER_API_KEY}'
+
+        response = requests.post(scraperapi_url, json=payload, headers=headers)
         response.raise_for_status()
         data = response.json()
         definition = data['result']
