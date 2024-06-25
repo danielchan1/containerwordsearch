@@ -7,13 +7,13 @@ import os
 import requests
 
 app = Flask(__name__, static_folder='out')
-CORS(app, origins=["http://127.0.0.1:5000"])
+CORS(app)
 """ CORS(app, origins=["https://containerwordsearch.pythonanywhere.com",
                    "http://containerwordsearch.pythonanywhere.com", 
                    "http://127.0.0.1:5000", 
                    "http://localhost:3000"]) """
 
-lt = main.create_letter_tree("english.txt") # containerwordsearch/
+lt = main.create_letter_tree("containerwordsearch/english.txt") # containerwordsearch/
 
 @app.route('/api/search', methods=['POST'])
 def search():
@@ -43,7 +43,7 @@ def get_definition():
         return jsonify({'definition': definition})
     except requests.exceptions.RequestException as e: # word not found in dictionaryapi
         # return jsonify({"Error": f"Word not found in dictionary API: {e}"}), 404 
-        url = "https://scripai.com/api/getGPT" # https://corsproxy.io/?
+        url = "https://scripai.com/api/getGPT"
         headers = {
             'Content-Type': 'application/json',
         }
@@ -67,21 +67,6 @@ def get_definition():
                 return jsonify({'definition': 'Error generating definition'})
         except requests.exceptions.RequestException as error:
             return jsonify({'definition': 'Error fetching resource'})
-    """ try:
-        url = f'https://wordsapiv1.p.mashape.com/words/{word}/definitions'
-        response = requests.get(url,
-                                headers={
-                                    "X-Mashape-Key": "<required>", # https://rapidapi.com/dpventures/api/wordsapi/pricing # $0.004 per request over 2500 a day
-                                    "Accept": "application/json"
-                                })
-        response.raise_for_status()
-        data = response.json()
-        definition = data['definitions'][0]['definition']
-        return jsonify({'definition': definition})
-    except requests.exceptions.RequestException as e: # word not found in dictionaryapi
-        return jsonify({"Error": f"Word not found in any APIs: {e}"}), 404  """
-    # try:
-        # TODO: first try wordnik api https://www.wordnik.com/users/dc369868/API
 
 # Serve the index.html for the root route
 @app.route('/')
