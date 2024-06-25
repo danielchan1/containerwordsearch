@@ -7,12 +7,13 @@ import os
 import requests
 
 app = Flask(__name__, static_folder='out')
-CORS(app, origins=["https://containerwordsearch.pythonanywhere.com",
+CORS(app, origins=["http://127.0.0.1:5000"])
+""" CORS(app, origins=["https://containerwordsearch.pythonanywhere.com",
                    "http://containerwordsearch.pythonanywhere.com", 
                    "http://127.0.0.1:5000", 
-                   "http://localhost:3000"])
+                   "http://localhost:3000"]) """
 
-lt = main.create_letter_tree("containerwordsearch/english.txt") # 
+lt = main.create_letter_tree("english.txt") # containerwordsearch/
 
 @app.route('/api/search', methods=['POST'])
 def search():
@@ -41,41 +42,47 @@ def get_definition():
         definition = data[0]['meanings'][0]['definitions'][0]['definition']
         return jsonify({'definition': definition})
     except requests.exceptions.RequestException as e: # word not found in dictionaryapi
-        print(f"Dictionary API error for word '{word}': {e}")
-    try:
-        # TODO: first try wordnik api
-
-        SCRAPER_API_KEY = 'a9e1d84d8bff1f512969d6f1167d85af'
-        SCRAPER_BASE_URL = 'https://api.scraperapi.com'
-        scripai_url = "https://scripai.com/api/getGPT"
-        payload = {'prompt': 
-                        {'title': f"In less than 70 tokens, {word}", 
-                        'language': "English", 
-                        'tone': "Informative"}, 
-                    'slug': "definition"}
+        # return jsonify({"Error": f"Word not found in dictionary API: {e}"}), 404 
+        url = "https://scripai.com/api/getGPT" # https://corsproxy.io/?
         headers = {
             'Content-Type': 'application/json',
-            'x-api-key': SCRAPER_API_KEY
         }
-        # scraperapi_url = f'{SCRAPER_BASE_URL}/post/raw?url={scripai_url}&api_key={SCRAPER_API_KEY}'
-        scraperapi_url = f'{SCRAPER_BASE_URL}render'
-        response = requests.post(scraperapi_url, json={
-            'url': scripai_url,
-            'headers': headers,
-            'body': payload
-        })
+        payload = {
+            'prompt': {
+                'title': f'In less than 70 tokens, {word}',
+                'language': "English",
+                'tone': "Informative"
+            },
+            'slug': "definition"
+        }
 
-
-        # response = requests.post(scraperapi_url, json=payload, headers=headers)
+        try:
+            response = requests.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            definition = data.get('result')
+            if definition:
+                return jsonify({'definition': definition})
+            else:
+                return jsonify({'definition': 'Error generating definition'})
+        except requests.exceptions.RequestException as error:
+            return jsonify({'definition': 'Error fetching resource'})
+    """ try:
+        url = f'https://wordsapiv1.p.mashape.com/words/{word}/definitions'
+        response = requests.get(url,
+                                headers={
+                                    "X-Mashape-Key": "<required>", # https://rapidapi.com/dpventures/api/wordsapi/pricing # $0.004 per request over 2500 a day
+                                    "Accept": "application/json"
+                                })
         response.raise_for_status()
         data = response.json()
-        definition = data['result']
+        definition = data['definitions'][0]['definition']
         return jsonify({'definition': definition})
-    except requests.exceptions.RequestException as e: # scripai failed for some reason
-        # definition = main.get_definition(word) # get word definition via AI.
-        # return jsonify({'definition': definition})
-        return jsonify({"Error": f"ScripAI failed: {e}"}), 400
-    
+    except requests.exceptions.RequestException as e: # word not found in dictionaryapi
+        return jsonify({"Error": f"Word not found in any APIs: {e}"}), 404  """
+    # try:
+        # TODO: first try wordnik api https://www.wordnik.com/users/dc369868/API
+
 # Serve the index.html for the root route
 @app.route('/')
 def serve_index():

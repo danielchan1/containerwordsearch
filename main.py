@@ -114,7 +114,7 @@ try:
             save_all_words(count, all_words)
             count = 0
         else:
-            print(get_definition(word))
+            # print(get_definition(word))
             count += check_and_add(word, all_words) """
     
     # for getting solves via console
