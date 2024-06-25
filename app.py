@@ -66,7 +66,7 @@ def get_definition():
             else:
                 return jsonify({'definition': 'Error generating definition'})
         except requests.exceptions.RequestException as error:
-            return jsonify({'definition': 'Error fetching resource'})
+            return jsonify({'definition': f'Error fetching resource: {error}'})
 
 # Serve the index.html for the root route
 @app.route('/')
