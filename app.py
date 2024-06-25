@@ -66,7 +66,8 @@ def get_definition():
             else:
                 return jsonify({'definition': 'Error generating definition'})
         except requests.exceptions.RequestException as error:
-            return jsonify({'definition': f'Error fetching resource: {error}'})
+            return jsonify({'definition': 'No definition found.'})
+        """ Error fetching resource: HTTPSConnectionPool(host='scripai.com', port=443): Max retries exceeded with url: /api/getGPT (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden'))) """
 
 # Serve the index.html for the root route
 @app.route('/')
